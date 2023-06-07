@@ -67,6 +67,7 @@ downArrowButton:SetPoint("BOTTOM", settingDialog, "BOTTOM", 0, 20);
 downArrowButton:SetSize(30, 30)
 downArrowButton:GetNormalTexture():SetRotation(math.rad(-90))
 
+
 function FineTune:SetUpArrowFunctions(frame)
     leftArrowButton:SetScript("OnClick", function() FineTune:Move(frame, "left") end)
     rightArrowButton:SetScript("OnClick", function() FineTune:Move(frame, "right") end)
@@ -89,16 +90,33 @@ function FineTune:OnUpdateHandler()
 end
 
 function FineTune:Move(frame, direction)
+    local editModeTargetFrame = _G["EditModeManagerFrame"]
+    if editModeTargetFrame then
+        editModeTargetFrame:SetHasActiveChanges(true)
+    end
     if frame then
         local currentPoints = { frame:GetPoint() }
-        if direction == "left" then
-            frame:SetPoint(currentPoints[1], currentPoints[2], currentPoints[3], currentPoints[4] - 1, currentPoints[5])
-        elseif direction == "right" then
-            frame:SetPoint(currentPoints[1], currentPoints[2], currentPoints[3], currentPoints[4] + 1, currentPoints[5])
-        elseif direction == "up" then
-            frame:SetPoint(currentPoints[1], currentPoints[2], currentPoints[3], currentPoints[4], currentPoints[5] + 1)
-        elseif direction == "down" then
-            frame:SetPoint(currentPoints[1], currentPoints[2], currentPoints[3], currentPoints[4], currentPoints[5] - 1)
+        local movingPx = 1;
+        if IsControlKeyDown() then
+            movingPx = 0.1;
+        else
+            if IsShiftKeyDown() then
+                movingPx = 10;
+            end
         end
+        if direction == "left" then
+            frame:SetPoint(currentPoints[1], currentPoints[2], currentPoints[3], currentPoints[4] - movingPx,
+                currentPoints[5])
+        elseif direction == "right" then
+            frame:SetPoint(currentPoints[1], currentPoints[2], currentPoints[3], currentPoints[4] + movingPx,
+                currentPoints[5])
+        elseif direction == "up" then
+            frame:SetPoint(currentPoints[1], currentPoints[2], currentPoints[3], currentPoints[4],
+                currentPoints[5] + movingPx)
+        elseif direction == "down" then
+            frame:SetPoint(currentPoints[1], currentPoints[2], currentPoints[3], currentPoints[4],
+                currentPoints[5] - movingPx)
+        end
+        frame:OnDragStop()
     end
 end
