@@ -39,8 +39,6 @@ core.frames = {
     lootFrame = _G["LootFrame"],
 }
 
-local container = CreateFrame("Frame", "container", UIParent);
-container:HookScript("OnUpdate", function() FineTune:OnUpdateHandler() end)
 
 local settingDialog = _G["EditModeSystemSettingsDialog"];
 local coordText = settingDialog:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -68,14 +66,7 @@ downArrowButton:SetSize(30, 30)
 downArrowButton:GetNormalTexture():SetRotation(math.rad(-90))
 
 
-function FineTune:SetUpArrowFunctions(frame)
-    leftArrowButton:SetScript("OnClick", function() FineTune:Move(frame, "left") end)
-    rightArrowButton:SetScript("OnClick", function() FineTune:Move(frame, "right") end)
-    upArrowButton:SetScript("OnClick", function() FineTune:Move(frame, "up") end)
-    downArrowButton:SetScript("OnClick", function() FineTune:Move(frame, "down") end)
-end
-
-function FineTune:OnUpdateHandler()
+settingDialog:HookScript("OnUpdate", function()
     for name, frame in pairs(core.frames) do
         local movable = frame:IsMovable();
         if movable then
@@ -87,6 +78,13 @@ function FineTune:OnUpdateHandler()
             FineTune:SetUpArrowFunctions(frame);
         end
     end
+end)
+
+function FineTune:SetUpArrowFunctions(frame)
+    leftArrowButton:SetScript("OnClick", function() FineTune:Move(frame, "left") end)
+    rightArrowButton:SetScript("OnClick", function() FineTune:Move(frame, "right") end)
+    upArrowButton:SetScript("OnClick", function() FineTune:Move(frame, "up") end)
+    downArrowButton:SetScript("OnClick", function() FineTune:Move(frame, "down") end)
 end
 
 function FineTune:Move(frame, direction)

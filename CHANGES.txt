@@ -1,0 +1,11 @@
+lightweight tag 19a65638e1889cf4484947548f1dce56e57653c0 1.1.0
+Author:	MentalArea <113bennylee@gmail.com>
+Date:	Wed Jun 7 17:17:18 2023 -0400
+
+commit 19a65638e1889cf4484947548f1dce56e57653c0
+Author: MentalArea <113bennylee@gmail.com>
+Date:   Wed Jun 7 17:17:18 2023 -0400
+
+    - Fixed position can't be saved as expected issue
+    - Added modifier key support for more precise positioning
+
