@@ -1,7 +1,6 @@
 local _, core = ...; -- Namespace
-local AceGUI = LibStub("AceGUI-3.0")
-FineTune = LibStub("AceAddon-3.0"):NewAddon("FineTune", "AceConsole-3.0", "AceEvent-3.0")
-
+local FineTune = {};
+core.FineTune = FineTune;
 core.frames = {
     extraAbilityContainer = _G["ExtraAbilityContainer"],
     targetFrame = _G["TargetFrame"],
@@ -37,12 +36,35 @@ core.frames = {
     bagsBar = _G["BagsBar"],
     microMenuContainer = _G["MicroMenuContainer"],
     lootFrame = _G["LootFrame"],
+    focusFrame = _G["FocusFrame"],
+    mirrorTimerContainer = _G["MirrorTimerContainer"],
+    archeologyDigsiteProgressBar = _G["ArcheologyDigsiteProgressBar"],
+    vehicleSeatIndicator = _G["VehicleSeatIndicator"],
 }
 
 
+local updateEventFrame = CreateFrame("Frame");
 local settingDialog = _G["EditModeSystemSettingsDialog"];
-local coordText = settingDialog:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-coordText:SetPoint("BOTTOM", settingDialog, "BOTTOM", 0, 125);
+local coordFrame = CreateFrame("Frame", "coordFrame", settingDialog)
+coordFrame:SetSize(150, 30);
+coordFrame:SetPoint("BOTTOM", settingDialog, "BOTTOM", 0, 125);
+local X = settingDialog:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+X:SetPoint("LEFT", coordFrame, "LEFT", -30, 0);
+X:SetText("X: ");
+local editBoxX = CreateFrame("EditBox", "editBoxX", settingDialog, "InputBoxTemplate")
+editBoxX:SetPoint("LEFT", X, "RIGHT", 0, 0);
+editBoxX:SetSize(80, 30)
+editBoxX:SetAutoFocus(false)
+local Y = settingDialog:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+Y:SetPoint("LEFT", editBoxX, "RIGHT", 10, 0);
+Y:SetText("Y: ");
+local editBoxY = CreateFrame("EditBox", "editBoxX", settingDialog, "InputBoxTemplate")
+editBoxY:SetPoint("LEFT", Y, "RIGHT", 0, 0);
+editBoxY:SetSize(80, 30)
+editBoxY:SetAutoFocus(false)
+
+
+
 local leftArrowButton = CreateFrame("Button", "leftArrorButton", settingDialog, "UIPanelButtonTemplate")
 leftArrowButton:SetNormalTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Up")
 leftArrowButton:SetPoint("BOTTOM", settingDialog, "BOTTOM", -40, 50);
@@ -66,16 +88,63 @@ downArrowButton:SetSize(30, 30)
 downArrowButton:GetNormalTexture():SetRotation(math.rad(-90))
 
 
-settingDialog:HookScript("OnUpdate", function()
-    for name, frame in pairs(core.frames) do
-        local movable = frame:IsMovable();
-        if movable then
-            local left = frame:GetLeft();
-            local bottom = frame:GetBottom();
-            local leftFormatted = string.format("%.1f", left);
-            local bottomFormatted = string.format("%.1f", bottom);
-            coordText:SetText("X: " .. leftFormatted .. " Y: " .. bottomFormatted)
-            FineTune:SetUpArrowFunctions(frame);
+-- Set edit box events
+local editBoxFocus = false;
+local currentFrame = nil;
+editBoxX:SetScript("OnEditFocusGained", function()
+    editBoxFocus = true;
+end)
+editBoxY:SetScript("OnEditFocusGained", function()
+    editBoxFocus = true;
+end)
+editBoxX:SetScript("OnEditFocusLost", function()
+    editBoxFocus = false;
+end)
+editBoxY:SetScript("OnEditFocusLost", function()
+    editBoxFocus = false;
+end)
+editBoxX:SetScript("OnEnterPressed", function()
+    if currentFrame then
+        local currentPoints = { currentFrame:GetPoint() }
+        local x = editBoxX:GetText();
+        local y = editBoxY:GetText();
+        currentFrame:SetPoint(currentPoints[1], currentPoints[2], currentPoints[3], x, y)
+        currentFrame:OnDragStop()
+    end
+end)
+editBoxY:SetScript("OnEnterPressed", function()
+    if currentFrame then
+        local currentPoints = { currentFrame:GetPoint() }
+        local x = editBoxX:GetText();
+        local y = editBoxY:GetText();
+        currentFrame:SetPoint(currentPoints[1], currentPoints[2], currentPoints[3], x, y)
+        currentFrame:OnDragStop()
+    end
+end)
+
+updateEventFrame:HookScript("OnUpdate", function()
+    local screenWidth = GetScreenWidth();
+    local middleOfScreen = screenWidth / 2;
+    local screenHeight = GetScreenHeight();
+    local middleOfScreenHeight = screenHeight / 2;
+
+
+    if settingDialog:IsShown() then
+        for name, frame in pairs(core.frames) do
+            local movable = frame:IsMovable();
+            if movable and not editBoxFocus then
+                currentFrame = frame;
+                local x, y = frame.Selection:GetCenter();
+                local left = x - middleOfScreen;
+                local bottom = y - middleOfScreenHeight;
+                local leftFormatted = string.format("%.1f", left);
+                local bottomFormatted = string.format("%.1f", bottom);
+
+                -- coordText:SetText("X: " .. leftFormatted .. " Y: " .. bottomFormatted)
+                editBoxX:SetText(leftFormatted)
+                editBoxY:SetText(bottomFormatted)
+                FineTune:SetUpArrowFunctions(frame);
+            end
         end
     end
 end)
@@ -117,4 +186,24 @@ function FineTune:Move(frame, direction)
         end
         frame:OnDragStop()
     end
+end
+
+function FineTune:Toggle(value)
+    if value then
+        coordText:Show()
+        leftArrowButton:Show()
+        rightArrowButton:Show()
+        upArrowButton:Show()
+        downArrowButton:Show()
+    else
+        coordText:Hide()
+        leftArrowButton:Hide()
+        rightArrowButton:Hide()
+        upArrowButton:Hide()
+        downArrowButton:Hide()
+    end
+end
+
+function FineTune:Initialize()
+    FineTune:Toggle(EHUD.db.profile.fineTuneHUD.enable)
 end
