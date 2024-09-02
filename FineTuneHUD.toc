@@ -1,4 +1,4 @@
-## Interface: 100107
+## Interface: 110000
 ## Title: |cff00a0e9Fine Tune HUD|r
 ## Notes: 
 ## Author: Snowpanther
