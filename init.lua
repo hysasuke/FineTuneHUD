@@ -32,6 +32,7 @@ core.frames = {
     bossTargetFrameContainer = _G["BossTargetFrameContainer"],
     durabilityFrame = _G["DurabilityFrame"],
     arenaEnemyFramesContainer = _G["ArenaEnemyFramesContainer"],
+    compactArenaFrame = _G["CompactArenaFrame"],
     gameTolltipDefaultContainer = _G["GameTooltipDefaultContainer"],
     bagsBar = _G["BagsBar"],
     microMenuContainer = _G["MicroMenuContainer"],
@@ -108,7 +109,7 @@ editBoxX:SetScript("OnEnterPressed", function()
         local currentPoints = { currentFrame:GetPoint() }
         local x = editBoxX:GetText();
         local y = editBoxY:GetText();
-        currentFrame:SetPoint(currentPoints[1], currentPoints[2], currentPoints[3], x, y)
+        currentFrame:SetPoint(currentPoints[1], currentPoints[2], currentPoints[3], x, currentPoints[5])
         currentFrame:OnDragStop()
     end
 end)
@@ -117,7 +118,7 @@ editBoxY:SetScript("OnEnterPressed", function()
         local currentPoints = { currentFrame:GetPoint() }
         local x = editBoxX:GetText();
         local y = editBoxY:GetText();
-        currentFrame:SetPoint(currentPoints[1], currentPoints[2], currentPoints[3], x, y)
+        currentFrame:SetPoint(currentPoints[1], currentPoints[2], currentPoints[3], currentPoints[4], y)
         currentFrame:OnDragStop()
     end
 end)
